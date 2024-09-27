@@ -261,7 +261,7 @@ export class CreateComponent {
               ...skill,
             }))
           })),
-          completed: this.formTask.get('completed')?.value
+          completed: Boolean(this.formTask.get('completed')?.value)
         }
 
         this.tasks.push(newTask)
