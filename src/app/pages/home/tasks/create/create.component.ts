@@ -92,10 +92,10 @@ export class CreateComponent {
     }
     else{
       const userName = this.getListUsers?.controls[userIndex]?.get('name')?.value;
-      const existingUser = this.getListUsers.controls.some((user: any, index: number) => {
+      const nameExists = this.getListUsers.controls.some((user: any, index: number) => {
       return index !== userIndex && user.get('name').value.toLowerCase() === userName.toLowerCase();
       });
-      if (existingUser) {
+      if (nameExists) {
         Swal.fire({
           title: "Error",
           text: "El nombre de usuario ya existe",
@@ -285,14 +285,30 @@ export class CreateComponent {
 
   /**
    * Function Delete blank spaces
+   * and validate the name
    */
   deleteBlankSpaces(userIndex: number) {
     const userControl = this.getListUsers.controls[userIndex];
     const nameControl = userControl.get('name');
 
-    if (nameControl && nameControl.value != null && nameControl.value != '') {
+    if (nameControl && nameControl.value != null && nameControl.value !== '') {
       const trimmedValue = nameControl.value.trim();
-      nameControl.setValue(trimmedValue);
+
+      const nameExists = this.getListUsers.controls.some((control, index) => {
+        return index !== userIndex && control.get('name')?.value.trim() === trimmedValue;
+      });
+
+      if (nameExists) {
+        Swal.fire({
+          title: "Error",
+          text: "El nombre de usuario ya existe",
+          icon: 'error',
+          cancelButtonText: 'OK'
+          });
+        return;
+      } else {
+        nameControl.setValue(trimmedValue);
+      }
     }
   }
 

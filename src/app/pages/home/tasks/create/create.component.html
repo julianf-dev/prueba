@@ -88,7 +88,7 @@
 
               <div class="flex flex-col w-full">
                 <label for="sattus" aria-label="status" class="font-semibold">Estado:</label>
-                <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Elige un estado">
+                <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Elige un estado" formControlName="completed">
                   <option [value]="false" class="text-orange-500">Sin finalizar</option>
                   <option [value]="true" class="text-green-500">Finalizada</option>
                 </select>
@@ -110,14 +110,4 @@
   </div>
 </section>
 
-<!-- <hr>
-<pre class="text-white">
-    EStado del formulario: {{formTask.valid}}
-    <br />
-    Status: {{formTask.status}}
-</pre>
 
-<pre class="text-white">
-    {{formTask.value | json}}
-</pre>
- -->
