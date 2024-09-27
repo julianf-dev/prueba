@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.header{
+  height: calc(4% + 1rem);
+}
+
+.main{
+  height: 96%
+}
