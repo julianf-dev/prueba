@@ -42,7 +42,7 @@ export class CreateComponent {
     this.formTask = this.formBuilder.group({
       id: [this.generateRandomId()],
       title: ['', Validators.required],
-      date: ['',Validators.required],
+      date: [null,Validators.required],
       arrayUsers: this.formBuilder.array([],Validators.required),
       completed: [false,Validators.required],
     })
@@ -316,9 +316,12 @@ export class CreateComponent {
    * Function to select the date
    */
   onDateChange(event: any) {
+    console.log(event);
     const dateValue = event.target.value;
-    if(dateValue){
+    if (dateValue) {
       this.formTask?.get('date')?.setValue(dateValue);
+    } else {
+      this.formTask?.get('date')?.setValue(null); // Opcional: restablecer si no hay valor
     }
   }
 
