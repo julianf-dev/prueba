@@ -1,10 +1,10 @@
 export interface Skill {
-  id: number;
+  id: string;
   name: string;
 }
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
   age: number;
   skills: Skill[];

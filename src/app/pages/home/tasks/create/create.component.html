@@ -8,7 +8,7 @@
               <section class="w-full">
                 <h3 class="font-bold w-full">Nombre tarea:</h3>
                 <input formControlName="title" aria-describedby="helper-text-explanation" class=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Description.." required />
-                <p id="filled_success_help" class="mt-2 text-xs text-red-600 dark:text-red-400" *ngIf="campoNoValido('title')"><span class="font-medium">Oh!</span> Campo requerid</p>
+                <p id="filled_success_help" class="mt-2 text-xs text-red-600 dark:text-red-400" *ngIf="invalidField('title')">Campo requerido</p>
               </section>
               <section  class="w-full">
                 <h3 class="font-bold w-full">Fecha Limite:</h3>
@@ -18,61 +18,106 @@
                       <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
                     </svg>
                   </div>
-                  <input datepicker id="default-datepicker" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date" formControlName="date">
+                  <input datepicker id="default-datepicker" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date" formControlName="date" (blur)="onDateChange($event)">
                 </div>
+                <p id="filled_success_help" class="mt-2 text-xs text-red-600 dark:text-red-400" *ngIf="invalidField('date')">Campo requerido</p>
               </section>
-              <div class="w-full ng" formArrayName="arrayUsers">
-                <section class="w-full flex justify-between mt-5 items-center" >
-                  <h3 class="font-bold w-full">Personas asociadas:</h3>
-                  <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" (click)="addUser()">Agregar</button>
-                </section>
-                <section *ngFor="let user of getListUsers.controls; let userIndex = index">
-                  <section class="w-full block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-200 dark:border-gray-700" [formGroupName]="userIndex">
-                    <h3 class="font-semibold w-full">Nombre completo:</h3>
-                    <input formControlName="name" aria-describedby="helper-text-explanation" class=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Nombre." />
-                    <h3 class="font-semibold w-full">Edad:</h3>
-                    <input formControlName="age" type="number" aria-describedby="helper-text-explanation" class=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Edad" required/>
-                    <p id="filled_success_help" class="mt-2 text-xs text-red-600 dark:text-red-400" *ngIf="campoNoValidoUser('age', userIndex)">Campo requerido</p>
-                    <p id="filled_success_help" class="mt-2 text-xs text-red-600 dark:text-red-400"><span class="font-medium">Oh!</span> Campo requerido</p>
-                    <div class="w-full flex justify-between mt-4" formArrayName="skills">
-                      <section class="w-full flex justify-between mt-5 items-center">
-                      <h3 class="font-semibold w-full" >Habilidades:</h3>
-                      <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" (click)="addSkill(userIndex)">
-                          +
-                      </button>
-                    </section>
-                    <section *ngFor="let skill of getListSkills(userIndex).controls; let skillIndex = index">
-                      <section [formGroupName]="skillIndex">
-                        <input type="text" formControlName="name" class=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        <button (click)="deleteSkill(userIndex,skillIndex) " class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Delete</button>
-                      </section>
 
-                    </section>
+            <div class="flex items-center justify-center h-56 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-50 w-full" *ngIf="loadingUsers">
+              <div role="status">
+                  <svg aria-hidden="true" class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg>
+                  <span class="sr-only">Loading...</span>
+              </div>
+          </div>
+            <div class="w-full ng" formArrayName="arrayUsers" *ngIf="!loadingUsers">
+                <section class="w-full flex justify-between mb-5 mt-5 items-center" >
+                  <h3 class="font-bold w-full">Personas asociadas:</h3>
+                  <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" (click)="addUser()" *ngIf="this.getListUsers.length == 0 || this.addMoreUsers">Agregar</button>
+                </section>
+                <p id="filled_success_help" class="mt-2 mb-2 text-xs text-red-600 dark:text-red-400" *ngIf="invalidField('arrayUsers')">Debe agregar al menos una persona y/o completar información</p>
+                <ul *ngFor="let user of getListUsers.controls; let userIndex = index">
+                  <li class="w-full block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-200 dark:border-gray-700 mb-2" [formGroupName]="userIndex">
+                    <h3 class="font-semibold w-full">Nombre completo:</h3>
+                    <input formControlName="name" aria-describedby="helper-text-explanation" class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Nombre." (blur)="deleteBlankSpaces(userIndex)" />
+
+                    <p id="filled_success_help" class="mt-2 text-xs text-red-600 dark:text-red-400" *ngIf="invalidFieldUser('name', userIndex)">Campo requerido</p>
+
+                    <h3 class="font-semibold w-full">Edad:</h3>
+                    <input formControlName="age" type="number" aria-describedby="helper-text-explanation" class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Edad" required/>
+
+                    <p id="filled_success_help" class="mt-2 text-xs text-red-600 dark:text-red-400" *ngIf="invalidFieldUser('age', userIndex)">Campo requerido y/o edad mayor a 18</p>
+
+                    <div class="w-full flex  flex-col justify-between mt-4" formArrayName="skills">
+                        <section class="w-full flex justify-between mt-5 items-center">
+                            <h2 class="font-semibold w-full">Habilidades:</h2>
+                            <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 dark:disabled:bg-gray-400" (click)="addSkill(userIndex)" [disabled]="userAdded[userIndex]" >
+                                +
+                            </button>
+                        </section>
+                        <p id="filled_success_help" class="mt-2 mb-2 text-xs text-red-600 dark:text-red-400" *ngIf="invalidFieldUser('skills', userIndex)">Debe tener al menos una habilidad</p>
+                        <section *ngFor="let skill of getListSkills(userIndex).controls; let skillIndex = index" class="flex items-center mt-2 w-full">
+                            <section [formGroupName]="skillIndex" class="flex flex-col items-center w-full mb-5">
+                                <h4 class="font-medium w-full">Nombre habilidad:</h4>
+                                <div class="flex w-full">
+                                  <input type="text" formControlName="name" class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-5/6 p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500 me-2">
+                                  <button (click)="deleteSkill(userIndex, skillIndex)" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none  w-1/6 dark:focus:ring-blue-800 dark:disabled:bg-gray-400" [disabled]="userAdded[userIndex]">
+                                    -
+                                  </button>
+                                </div>
+                            </section>
+                            <p id="filled_success_help" class="mt-2 text-xs text-red-600 dark:text-red-400" *ngIf="invalidFieldSkill(userIndex,skillIndex,'name')">Campo requerido</p>
+                        </section>
 
                     </div>
-                    <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 justify-end" (click)="deleteUser(userIndex)">Eliminar usuario</button>
-                  </section>
-                </section>
+
+                    <section class="w-full flex justify-between items-center">
+                      <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 justify-end" (click)="deleteUser(userIndex)">Eliminar persona</button>
+                      <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 justify-end"
+                      *ngIf="!userAdded[userIndex]"
+                      (click)="createUser(userIndex)">Agregar persona</button>
+                    </section>
+                </li>
+
+                </ul>
+
 
               </div>
 
             </div>
-            <div class="mt-4 flex items-center justify-between">
-              <select class="text-sm font-medium text-gray-500" formControlName="completed">
-                Status:
+            <div class="flex items-start flex-col w-full gap-4 mt-2">
 
-              </select>
-              <div class="flex items-center justify-around gap-4">
-                <button
-                  (click)="addTask()"
-                  class="font-medium text-indigo-600 hover:text-indigo-500 cursor-pointer">
-                  Crear
-                </button>
+              <div class="flex flex-col w-full">
+                <label for="sattus" aria-label="status" class="font-semibold">Estado:</label>
+                <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Elige un estado">
+                  <option [value]="false" class="text-orange-500">Sin finalizar</option>
+                  <option [value]="true" class="text-green-500">Finalizada</option>
+                </select>
+                <p id="filled_success_help" class="mt-2 text-xs text-red-600 dark:text-red-400" *ngIf="invalidField('completed')"><span class="font-medium">Oh!</span> Campo requerido</p>
               </div>
+
+              <button
+                  (click)="createTask()"
+                  class="cursor-pointer text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none  dark:focus:ring-blue-800 w-full">
+                  Crear tarea
+              </button>
+
             </div>
           </div>
+
         </li>
       </ul>
    </section>
   </div>
 </section>
+
+<!-- <hr>
+<pre class="text-white">
+    EStado del formulario: {{formTask.valid}}
+    <br />
+    Status: {{formTask.status}}
+</pre>
+
+<pre class="text-white">
+    {{formTask.value | json}}
+</pre>
+ -->

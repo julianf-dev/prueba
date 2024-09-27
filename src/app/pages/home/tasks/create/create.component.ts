@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, NgModule } from '@angular/core';
-import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { Task } from 'src/app/interface/tasks';
 import { Skill, User } from 'src/app/interface/user';
 import { TaskServiceService } from 'src/app/services/api/task/task-service.service';
@@ -17,19 +16,23 @@ import Swal from 'sweetalert2';
 export class CreateComponent {
 
   private formBuilder = inject(FormBuilder)
-  idTask!: number
-
+  private taskServeice = inject(TaskServiceService)
 
   loadingTasks: boolean = false
-  isEditing: boolean[] = []
+  loadingUsers!: boolean
+  addMoreUsers:boolean = false
+  userAdded: boolean[] = [];
   tasks: Task[] = []
   formTask!: FormGroup
 
   ngOnInit() {
+    this.loadingUsers = true
     this.buiildForm();
     setTimeout( () =>{
       this.addUser()
-    },2000)
+      this.addSkill(0)
+      this.loadingUsers =false
+    },1000)
   }
 
   /**
@@ -37,13 +40,12 @@ export class CreateComponent {
    */
   buiildForm() {
     this.formTask = this.formBuilder.group({
-      id: [''],
+      id: [this.generateRandomId()],
       title: ['', Validators.required],
-      date: [null],
-      arrayUsers: this.formBuilder.array([]),
-      completed: [false],
+      date: ['',Validators.required],
+      arrayUsers: this.formBuilder.array([],Validators.required),
+      completed: [false,Validators.required],
     })
-    console.log(this.formTask);
   }
 
   /**
@@ -54,7 +56,7 @@ export class CreateComponent {
   }
 
   /**
-   * Functio to get skills
+   * Function to get skills
    * @param skillIndex
    * @returns
    */
@@ -71,18 +73,56 @@ export class CreateComponent {
   }
 
   /**
+ * Function to validate if user is in the list
+ * use the boolean array to valide if the user exist.
+ */
+  createUser(userIndex: number) {
+    if (this.formTask.get('arrayUsers')?.invalid && this.getListUsers.length > 0) {
+      this.getListUsers.controls.forEach((user: any) => {
+        Object.entries(user.controls).forEach(([controlName, control]) => {
+          (control as AbstractControl).markAsTouched();
+        });
+      })
+      Swal.fire({
+      title: "Faltan campos por diligenciar",
+      text: "Hay campos sin completar, por favor revise el formulario.",
+      icon: 'warning',
+      cancelButtonText: 'OK'
+      });
+    }
+    else{
+      const userName = this.getListUsers?.controls[userIndex]?.get('name')?.value;
+      const existingUser = this.getListUsers.controls.some((user: any, index: number) => {
+      return index !== userIndex && user.get('name').value.toLowerCase() === userName.toLowerCase();
+      });
+      if (existingUser) {
+        Swal.fire({
+          title: "Error",
+          text: "El nombre de usuario ya existe",
+          icon: 'error',
+          cancelButtonText: 'OK'
+          });
+        return;
+      }
+      this.userAdded[userIndex] = true;
+      this.addMoreUsers = true
+    }
+  }
+
+  /**
    * Function to ad a new skill
    */
   addSkill(userIndex: any, skill: any = null){
     this.getListSkills(userIndex).push(this.newSkill(skill))
   }
+
   /**
    * Create a new empty task or
    * fill with task's values
    * @param task
    */
-  newUser(user: any = null) {
-    let id = null
+  newUser(user: User | null = null) {
+    let id = this.generateRandomId()
     let name = null
     let age = null
     let skills = null
@@ -94,11 +134,10 @@ export class CreateComponent {
     }
     let userFormGroup = this.formBuilder.group({
       id: [id],
-      name: [name],
+      name: [name, Validators.required],
       age: [age, Validators.min(18)],
       skills: this.formBuilder.array([],Validators.required)
     })
-    console.log(userFormGroup);
     return userFormGroup
   }
 
@@ -107,8 +146,8 @@ export class CreateComponent {
    * @param skill
    * @returns
    */
-  newSkill(skill: Skill){
-    let id = null
+  newSkill(skill: Skill | null = null){
+    let id = this.generateRandomId()
     let name = null
     if (skill) {
       if (skill.id) id = skill.id
@@ -117,7 +156,7 @@ export class CreateComponent {
 
     let skillFormGroup = this.formBuilder.group({
       id: [id],
-      name: [name],
+      name: [name, Validators.required],
     })
     return skillFormGroup
   }
@@ -127,19 +166,32 @@ export class CreateComponent {
    * @param campo
    * @returns
    */
-    campoNoValido(campo: string) {
+    invalidField(campo: string) {
       return this.formTask.get(campo)?.invalid && this.formTask.get(campo)?.touched;
     }
 
 
     /**
-     * Validate if user fiel is required
+     * Validate if user field is required
      * @param campo
      * @returns
      */
-    campoNoValidoUser(campo: string, userIndex: number) {
+    invalidFieldUser(campo: string, userIndex: number) {
       if (this.getListUsers.controls[userIndex]) {
         const control = this.getListUsers.controls[userIndex].get(campo);
+        return control?.invalid && control?.touched;
+      }
+      return false;
+    }
+
+    /**
+     * Validate if user field is required
+     * @param campo
+     * @returns
+     */
+    invalidFieldSkill(userIndex: number, skillIndex: number, campo:string) {
+      if(this.getListSkills(userIndex).controls[skillIndex]){
+        const control = this.getListSkills(userIndex).controls[skillIndex].get(campo);
         return control?.invalid && control?.touched;
       }
       return false;
@@ -164,24 +216,18 @@ export class CreateComponent {
       }
     }
 
-
-    /**
-     * Function to validate name
-     */
-    validateName(event: Event){
-
-    }
-
-
-    addTask(){
+    createTask(){
       if (this.formTask.invalid) {
         Object.entries(this.formTask.controls).forEach(([controlName, control]) => {
-  /*         console.log(controlName, control.invalid); */
           control.markAsTouched();
         });
-        this.getListUsers.controls.forEach((copropietario: any) => {
-          Object.entries(copropietario.controls).forEach(([controlName, control]) => {
+        this.getListUsers.controls.forEach((user: any) => {
+          Object.entries(user.controls).forEach(([controlName, control]) => {
             (control as AbstractControl).markAsTouched();
+          });
+          const skills = user.get('skills') as FormArray;
+          skills.controls.forEach((skillControl: AbstractControl) => {
+            skillControl.markAsTouched();
           });
         });
         Swal.fire({
@@ -190,27 +236,96 @@ export class CreateComponent {
           icon: 'warning',
           cancelButtonText: 'OK'
         });
-      } else {
-      const storedTasks = localStorage.getItem('tasks');
-      if (storedTasks) {
-        this.tasks = JSON.parse(storedTasks);
       }
-      const newTask = {
-        id: Date(),
-        title: this.formTask.get('title')?.value,
-        date: this.formTask.get('date')?.value,
-        users: this.formTask.get('users')?.value,
-        completed: this.formTask.get('completed')?.value,
+      else {
+        const storedTasks = this.taskServeice.getLocalTasks()
+
+        if (storedTasks) {
+          this.tasks = JSON.parse(storedTasks);
+        }
+
+        //todo Information
+        /**
+         * We need to do a map in bot arrays
+         * because if we dont do that
+         * the object only takes the first
+         * reference and not the deep references
+         */
+        const newTask: Task = {
+          id: this.formTask.get('id')?.value,
+          date: this.formTask.get('date')?.value,
+          title: this.formTask.get('title')?.value,
+          users: this.formTask.get('arrayUsers')?.value.map((user: any) => ({
+            ...user,
+            skills: user.skills.map((skill: any) => ({
+              ...skill,
+            }))
+          })),
+          completed: this.formTask.get('completed')?.value
+        }
+
+        this.tasks.push(newTask)
+
+        Swal.fire({
+          title: "Exito",
+          text: 'Tarea creada con exito',
+          cancelButtonText: 'OK'
+        });
+        this.taskServeice.setTasks(this.tasks)
+        this.resetForm()
       }
+  }
 
-      this.tasks.push(newTask)
-      localStorage.setItem('tasks', JSON.stringify(this.tasks));
+  /**
+   * Function to create random id
+   */
+  generateRandomId() {
+    return 'id-'+ Math.floor(Math.random() * 1000);
+  }
 
-      Swal.fire({
-        title: "Exito",
-        text: 'Tarea creada con exito',
-        cancelButtonText: 'OK'
-      });
+  /**
+   * Function Delete blank spaces
+   */
+  deleteBlankSpaces(userIndex: number) {
+    const userControl = this.getListUsers.controls[userIndex];
+    const nameControl = userControl.get('name');
+
+    if (nameControl && nameControl.value != null && nameControl.value != '') {
+      const trimmedValue = nameControl.value.trim();
+      nameControl.setValue(trimmedValue);
     }
+  }
+
+  /**
+   * Function to select the date
+   */
+  onDateChange(event: any) {
+    const dateValue = event.target.value;
+    if(dateValue){
+      this.formTask?.get('date')?.setValue(dateValue);
+    }
+  }
+
+  /**
+   * Function to reset form
+   */
+  resetForm(){
+    this.formTask.reset();
+    this.userAdded = [];
+    this.addMoreUsers = false;
+    this.loadingTasks = true;
+
+    setTimeout(() => {
+      const arrayUsersControl = this.formTask.get('arrayUsers') as FormArray;
+      while (arrayUsersControl.length) {
+        arrayUsersControl.removeAt(0);
+      }
+      this.formTask.get('arraysUsers')?.setValue([])
+      this.formTask.get('completed')?.setValue(false);
+      this.formTask.get('id')?.setValue(this.generateRandomId());
+      this.addUser();
+      this.addSkill(0);
+      this.loadingUsers = false;
+    }, 2000);
   }
 }

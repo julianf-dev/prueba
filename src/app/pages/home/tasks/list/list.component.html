@@ -1,21 +1,20 @@
 <section class="container md:mx-auto ">
   <header class="text-center px-8 sm:px-0">
-    <div class="flex justify-between w-full">
-      <h1 class="mb-4 text-4xl text-white dark">Tasks</h1>
-      <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" routerLink="/home/tasks/create" routerLinkActive="router-link-active" >Create new Task</button>
+    <div class="flex justify-end w-full">
+      <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" routerLink="/home/tasks/create" routerLinkActive="router-link-active" >Crear nueva tarea</button>
     </div>
     <div class="flex w-full justify-between">
-      <h2 class="mb-4 text-2xl text-white">Filter</h2>
+      <h2 class="mb-4 text-2xl text-white">Filtrar</h2>
       <div class="flex justify-evenly gap-3">
         <h3 class="mb-4 text-1xl cursor-pointer border-green-50 hover:text-blue-600"
         [ngClass]="withOutFilter == true ? 'text-blue-600' : 'text-white'" (click)="filter()"
-        >All</h3>
+        >Todas</h3>
         <h3 class="mb-4 text-1xl cursor-pointer border-green-50 hover:text-green-600"
         [ngClass]="completedFilter == true ? 'text-green-600' : 'text-white'" (click)="filter('completed')"
-        >Completed</h3>
+        >Completadas</h3>
         <h3 class="mb-4 text-1xl cursor-pointer border-green-50  hover:text-orange-600"
         [ngClass]="unfinishFilter == true ? 'text-orange-600' : 'text-white'" (click)="filter('unfinished')"
-        >Unfinished</h3>
+        >Sin finalizar</h3>
       </div>
     </div>
   </header>
@@ -30,33 +29,47 @@
             <div class="flex flex-col items-start justify-between">
               <div class="flex items-center justify-between w-full">
                 <div>
-                  <h3 class="font-bold w-full">Description:</h3>
+                  <h3 class="font-bold w-full">Nombre tarea</h3>
                 </div>
-                <div>
+                <div class="text-gray-400">
                   {{task.id}}
                 </div>
               </div>
-              <ng-container>
-                <p class="text-lg leading-6 font-medium text-gray-900">{{task.title}}</p>
-              </ng-container>
-              <h3 class="font-bold w-full">User:</h3>
-              <div class="text-lg leading-6 font-medium text-gray-900" *ngFor="let user of users">
-                  <span>
-                  </span>
-              </div>
+              <p class="text-lg leading-6 font-medium text-gray-900">{{task.title}}</p>
+              <h3 class="font-bold w-full">Fecha limite</h3>
+              <p class="text-lg leading-6 font-medium text-gray-900">{{task.date}}</p>
+              <h3 class="font-bold w-full">Personas Asociadas:</h3>
+              <ul class="w-full">
+                <li class="text-lg leading-6 font-medium text-gray-900 mb-2 bg-gray-100 rounded border-blue-400
+                w-full py-2 px-4" *ngFor="let user of task.users; let i= index">
+                  <div class="flex justify-between">
+                    <p class="text-sm leading-6 text-gray-900">{{user.name}} ( <span class="text-blue-400">{{user.age}}</span> )</p>
+                  </div>
+                  <div class="flex items-center justify-between w-full">
+                    <h4 class="font-bold text-sm">Habilidades:</h4>
+                    <ul *ngFor="let skill of user.skills">
+                      <li >
+                        <p class="text-sm leading-6 text-gray-700">{{skill.name}}</p>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+            </ul>
+
             </div>
             <div class="mt-4 flex items-center justify-between">
-              <p class="text-sm font-medium text-gray-500">Status:
-                <span class="text-green-600" *ngIf="task.completed === true">Completed</span>
-                <span class="text-orange-600" *ngIf="task.completed === false">Unfinished</span>
+              <p class="text-sm font-medium text-gray-500">Estado:
+                <span class="text-green-600" *ngIf="task.completed === true">Completada</span>
+                <span class="text-orange-600" *ngIf="task.completed === false">Sin finalizar</span>
               </p>
               <div class="flex items-center justify-around gap-4">
-                <div (click)="deleteTask(i)" class="font-medium text-red-600 hover:text-red-500 cursor-pointer">Delete
-                </div>
-                <div (click)="editTask(task.id)"
-                  class="font-medium text-indigo-600 hover:text-indigo-500 cursor-pointer">
-                  Edit
-                </div>
+                <button (click)="editTask(task.id)" class="font-mediumcursor-pointer border-2 px-2 border-solid rounded"
+                [ngClass]="task.completed == false ? '  border-green-500   text-green-600 hover:text-green-500 hover:bg-green-100' : ' text-orange-600 hover:text-orange-500 hover:bg-orange-100 border-orange-500 ' "
+                *ngIf="task">
+                  {{task.completed == false ? 'Finalizar' : 'Abrir de nuevo'}}
+                </button>
+                <button (click)="deleteTask(i)" class="font-medium text-red-600 hover:text-red-500 hover:bg-red-100  cursor-pointer border-red-500 rounded border-2 px-2 border-solid">Borrar
+                </button>
               </div>
             </div>
           </div>

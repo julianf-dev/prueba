@@ -137,8 +137,11 @@ export class ListComponent {
    * Function to navigate
    * to edit component
    */
-  editTask(index:number | string){
-    this.router.navigate([`/home/tasks/edit/${index}`])
+  editTask(idTask:number | string){
+    const taskIndex = this.tasks.findIndex(task => task.id === idTask);
+    if (taskIndex !== -1) {
+      this.tasks[taskIndex].completed = !this.tasks[taskIndex].completed;
+      this.taskService.setTasks(this.tasks);
+    }
   }
-
 }
